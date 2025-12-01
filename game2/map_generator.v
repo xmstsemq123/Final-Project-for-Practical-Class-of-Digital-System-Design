@@ -1,6 +1,7 @@
 module map_generator(
     input system_clk, rst,
-    output reg [63:0] framebuffer
+    output reg [63:0] framebuffer,
+    output reg map_generate_clk
 );
 
     //----- falling stick type -----//
@@ -17,7 +18,7 @@ module map_generator(
     end
 
     //----- divide frequency -----//
-    reg map_generate_clk;
+    // reg map_generate_clk;
     reg [6:0] mgc_counter; 
     parameter CNT_LIMIT = 7'd100; 
 
