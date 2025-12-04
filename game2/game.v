@@ -1,5 +1,7 @@
 module game(
-    input system_clk, lbt, rbt,
+    input system_clk, lbt, rbt, start,
+    output LCD_RW, LCD_EN, LCD_RS, LCD_RST,
+    output [7:0] LCD_DATA,
     output [7:0] row, col
 );
 
@@ -7,7 +9,7 @@ module game(
     wire map_generate_clk;
     wire left, right;
     wire [31:0] score;
-    reg rst;
+    reg rst, run;
 
     map_generator map(
         .system_clk(system_clk),
@@ -49,19 +51,46 @@ module game(
         .row(row)
     );
 
+    LCD_driver LCDD(
+        .system_clk(system_clk),
+        .rst(rst),
+        .run(run),
+        .score(score),
+        .LCD_RW(LCD_RW),
+        .LCD_EN(LCD_EN),
+        .LCD_RS(LCD_RS),
+        .LCD_RST(LCD_RST),
+        .LCD_DATA(LCD_DATA)
+    );
+
+    reg [3:0] state;
     reg [2:0] rst_counter;
 
     initial begin
-        rst_counter = 0;
-        rst = 1;
+        state = 0;
     end
 
     always @(posedge system_clk) begin
-        if(rst_counter <= 3'd3) begin
-            rst_counter <= rst_counter + 1;
-        end else begin 
-            rst <= 0;
-        end
+        case(state)
+            4'd0: begin
+                rst <= 1'b1;
+                state <= 4'd1;
+                rst_counter <= 3'd0;
+                run <= 1'b0;
+            end
+            4'd1: begin
+                if(rst_counter < 3'd2) rst_counter <= rst_counter + 1;
+                else state <= 4'd2;
+            end
+            4'd2: begin
+                if(start) state <= 4'd3;
+                else state <= 4'd2;
+            end
+            4'd3: begin
+                rst <= 1'b0;
+                run <= 1'b1;
+            end
+        endcase
     end
 
 endmodule

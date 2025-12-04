@@ -1,34 +1,14 @@
-module lab10_2(	clk,
-				reset,
-				LCD_DATA,
-				LCD_RW,
-				LCD_EN,
-				LCD_RS,
-				LCD_RST,
-				clear
-				);					
-input	clk;
-input	reset;
-input	clear;
-
-output	[7:0]	LCD_DATA;
-output	LCD_RW;
-output	LCD_EN;
-output	LCD_RS;
-output	LCD_RST;
-
-reg		[7:0]	LCD_DATA;
-reg		LCD_RW;
-reg		LCD_EN;
-reg		LCD_RS;
-reg		LCD_RST;
+module lcd_contorller(
+	input clk, reset, clear,
+	output reg LCD_RW, LCD_EN, LCD_RS, LCD_RST,
+	output reg [7:0] LCD_DATA
+);
 
 reg		[3:0]	state;
 reg		[17:0]	counter;
 reg		[5:0]	DATA_INDEX;
 
 wire		[7:0]	DATA;
-
 LCDM_table	M1(DATA_INDEX,DATA);
 
 always	@(posedge	clk or negedge	reset)begin
@@ -159,22 +139,4 @@ always@(table_index)begin
 	endcase
 end
 
-endmodule
-
-module  trigger(clk,reset,sw_in,sw_out);
-input   clk,sw_in,reset;
-output  reg sw_out;
-reg     tri_reg;
-
-always@(posedge clk,negedge reset)begin
-	if(!reset)begin
-		sw_out <= 1'd0;
-		tri_reg <= 1'd0;
-	end
-	else	begin
-		if(sw_in == 1 && tri_reg == 0)sw_out <= 1'd1;
-		else sw_out <= 1'd0;
-		tri_reg <= sw_in;
-	end
-end  
 endmodule
